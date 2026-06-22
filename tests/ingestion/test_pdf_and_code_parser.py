@@ -18,7 +18,13 @@ def test_parse_python_code_as_text() -> None:
 
 
 def test_pdf_requires_pymupdf() -> None:
-    with pytest.raises(ImportError):
-        from api.ingestion.pdf_extractor import extract_pdf_text
+    import importlib.util
 
-        extract_pdf_text(b"%PDF-1.4 fake")
+    from api.ingestion.pdf_extractor import extract_pdf_text
+
+    if importlib.util.find_spec("fitz") is None:
+        with pytest.raises(ImportError):
+            extract_pdf_text(b"%PDF-1.4 fake")
+    else:
+        with pytest.raises(Exception):
+            extract_pdf_text(b"%PDF-1.4 fake")

@@ -1,0 +1,2 @@
+PostgreSQL pgvector enables fast similarity search for retrieval-augmented generation.
+This smoke test document describes vector embeddings, chunk indexing, and citation-backed answers.

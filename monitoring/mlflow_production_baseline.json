@@ -1,9 +1,10 @@
 {
-  "_note": "Demo baseline for scripts/mlflow_regression_check.py. Update from locally measured runs only.",
+  "_note": "Measured locally via heuristic RAGAS fallback over demo fixture (not production benchmark data).",
+  "generated_at": "api/evaluation/testsets/sample_qa_100.jsonl (synthetic demo, not real benchmark data)",
   "metrics": {
-    "ragas_faithfulness": 0.0,
-    "ragas_answer_relevance": 0.0,
-    "ragas_context_recall": 0.0,
-    "ragas_context_precision": 0.0
+    "ragas_faithfulness": 1.0,
+    "ragas_answer_relevance": 0.028571428571428567,
+    "ragas_context_recall": 1.0,
+    "ragas_context_precision": 1.0
   }
 }

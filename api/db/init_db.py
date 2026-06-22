@@ -18,7 +18,7 @@ from pathlib import Path
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
-from .session import engine
+from .session import get_engine
 
 SCHEMA_PATH = Path(__file__).parent / "schema.sql"
 
@@ -43,7 +43,7 @@ def init_db() -> bool:
         return False
 
     try:
-        with engine.begin() as connection:
+        with get_engine().begin() as connection:
             connection.execute(text(schema_sql))
         print("[init_db] SUCCESS: schema created/verified.")
         return True

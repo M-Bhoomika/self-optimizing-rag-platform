@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-06-22T19:49:06Z",
+  "environment": {
+    "python_version": "3.14.3",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "results": [
+    {
+      "backend": "memory",
+      "build_time_seconds": 0.0531,
+      "query_latency_ms_p50": 1.9979,
+      "query_latency_ms_p95": 5.8623,
+      "recall_at_10": 0.8,
+      "vector_count": 200,
+      "dimension": 64
+    },
+    {
+      "backend": "hnsw",
+      "build_time_seconds": 0.0022,
+      "query_latency_ms_p50": 1.1347,
+      "query_latency_ms_p95": 3.9135,
+      "recall_at_10": 0.8,
+      "vector_count": 200,
+      "dimension": 64
+    }
+  ]
+}
