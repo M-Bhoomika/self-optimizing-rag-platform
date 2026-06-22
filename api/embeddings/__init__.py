@@ -1,17 +1,16 @@
-"""Embedding-domain contracts and a local placeholder implementation.
+"""Embedding layer exports."""
 
-Exposes the request/response schemas, the abstract provider interface, and the
-deterministic development provider.
-"""
-
+from .factory import get_embedding_provider
 from .interfaces import EmbeddingProvider
-from .providers import EMBEDDING_DIMENSION, DummyEmbeddingProvider
+from .providers import DummyEmbeddingProvider, SentenceTransformersProvider, validate_embedding_dimension
 from .schemas import EmbeddingRequest, EmbeddingResponse
 
 __all__ = [
+    "EmbeddingProvider",
     "EmbeddingRequest",
     "EmbeddingResponse",
-    "EmbeddingProvider",
     "DummyEmbeddingProvider",
-    "EMBEDDING_DIMENSION",
+    "SentenceTransformersProvider",
+    "validate_embedding_dimension",
+    "get_embedding_provider",
 ]

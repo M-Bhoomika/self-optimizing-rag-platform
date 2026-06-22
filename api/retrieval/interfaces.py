@@ -1,7 +1,8 @@
 """Abstract interfaces for the retrieval layer.
 
-Defines the contracts that concrete embedding providers and vector stores must
-implement. Implementations (OpenAI, pgvector, Chroma, ...) are added later.
+Defines the vector store contract. Embedding providers live in
+``api.embeddings.interfaces`` — import :class:`EmbeddingProvider` from there
+or from ``api.embeddings``.
 """
 
 from __future__ import annotations
@@ -10,20 +11,6 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Sequence
 
 from .schemas import RetrievalResult
-
-
-class EmbeddingProvider(ABC):
-    """Turns text into embedding vectors."""
-
-    @abstractmethod
-    def embed_query(self, text: str) -> List[float]:
-        """Embed a single query string into a vector."""
-        raise NotImplementedError
-
-    @abstractmethod
-    def embed_documents(self, texts: List[str]) -> List[List[float]]:
-        """Embed a batch of document texts into vectors."""
-        raise NotImplementedError
 
 
 class VectorStore(ABC):
@@ -48,6 +35,7 @@ class VectorStore(ABC):
         tenant_id: str,
         query_embedding: Sequence[float],
         top_k: int = 5,
+        filters: Dict[str, Any] | None = None,
     ) -> List[RetrievalResult]:
         """Return the ``top_k`` most similar chunks for ``tenant_id``."""
         raise NotImplementedError

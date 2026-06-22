@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from api.models.document import Document
@@ -63,3 +63,17 @@ class DocumentRepository:
             .order_by(Document.created_at.desc())
         )
         return list(self.session.execute(stmt).scalars().all())
+
+    def count_documents_for_tenant(self, tenant_id: str) -> int:
+        if not tenant_id:
+            raise ValueError("tenant_id must not be empty.")
+        stmt = select(func.count()).select_from(Document).where(Document.tenant_id == tenant_id)
+        return int(self.session.execute(stmt).scalar_one())
+
+    def delete_document(self, document_id: str) -> bool:
+        document = self.get_document(document_id)
+        if document is None:
+            return False
+        self.session.delete(document)
+        self.session.flush()
+        return True

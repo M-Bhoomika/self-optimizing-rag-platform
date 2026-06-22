@@ -1,12 +1,9 @@
 """In-memory vector store.
 
 A lightweight, dependency-free :class:`VectorStore` implementation used for
-local development and tests.
-
-TODO: This is a temporary, non-persistent backend. Replace with real vector
-stores (PostgreSQL/pgvector as the system of record and ChromaDB for
-high-throughput ANN search) once those integrations are implemented. The
-public interface should remain unchanged so callers are unaffected.
+local development and tests. Production backends (FAISS, ChromaDB, hybrid) live
+in the same package; see ``faiss_store.py``, ``chroma_store.py``, and
+``hybrid_store.py``.
 """
 
 from __future__ import annotations
@@ -80,11 +77,11 @@ class InMemoryVectorStore(VectorStore):
         tenant_id: str,
         query_embedding: Sequence[float],
         top_k: int = 5,
+        filters: Dict[str, Any] | None = None,
     ) -> List[RetrievalResult]:
-        """Return the ``top_k`` most similar chunks for ``tenant_id``.
-
-        TODO: Replace the brute-force scan with an ANN index (pgvector/Chroma).
-        """
+        """Return the ``top_k`` most similar chunks for ``tenant_id``."""
+        if filters:
+            raise ValueError("InMemoryVectorStore does not support metadata filters.")
         tenant_bucket = self._store.get(tenant_id, {})
         scored: List[RetrievalResult] = [
             RetrievalResult(

@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-worker
+  namespace: rag-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rag-worker
+  template:
+    metadata:
+      labels:
+        app: rag-worker
+    spec:
+      containers:
+        - name: worker
+          image: rag-platform-worker:latest
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+                name: rag-platform-env

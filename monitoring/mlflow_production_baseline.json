@@ -1,0 +1,9 @@
+{
+  "_note": "Demo baseline for scripts/mlflow_regression_check.py. Update from locally measured runs only.",
+  "metrics": {
+    "ragas_faithfulness": 0.0,
+    "ragas_answer_relevance": 0.0,
+    "ragas_context_recall": 0.0,
+    "ragas_context_precision": 0.0
+  }
+}

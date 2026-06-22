@@ -1,0 +1,32 @@
+{
+  "_note": "Template only. Populate by running scripts/benchmark_backends.py locally.",
+  "generated_at": null,
+  "environment": {
+    "python_version": null,
+    "platform": null
+  },
+  "results": [
+    {
+      "backend": "memory",
+      "build_time_seconds": null,
+      "query_latency_ms_p50": null,
+      "query_latency_ms_p95": null,
+      "recall_at_10": null,
+      "notes": "Run: python scripts/benchmark_backends.py --output monitoring/benchmark_results.json"
+    },
+    {
+      "backend": "hnsw",
+      "build_time_seconds": null,
+      "query_latency_ms_p50": null,
+      "query_latency_ms_p95": null,
+      "recall_at_10": null
+    },
+    {
+      "backend": "faiss",
+      "build_time_seconds": null,
+      "query_latency_ms_p50": null,
+      "query_latency_ms_p95": null,
+      "recall_at_10": null
+    }
+  ]
+}

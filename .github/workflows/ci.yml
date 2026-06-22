@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Placeholder: add ruff/black/mypy when lint tooling is configured.
+      - name: Lint placeholder
+        run: echo "Lint step placeholder — configure ruff/black in a future PR."
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: python -m pytest tests/ -q
+
+  build:
+    name: Build Verification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build API image
+        run: docker build -f docker/api.Dockerfile -t rag-platform-api:ci .
+
+      - name: Build worker image
+        run: docker build -f docker/worker.Dockerfile -t rag-platform-worker:ci .
+
+      - name: Verify API image starts
+        run: |
+          docker run -d --name rag-api-ci -p 8000:8000 rag-platform-api:ci
+          sleep 5
+          curl -f http://localhost:8000/health
+          docker stop rag-api-ci
+
+  mlflow-regression:
+    name: MLflow RAGAS Regression (optional)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run regression check
+        run: python scripts/mlflow_regression_check.py --baseline monitoring/mlflow_production_baseline.json
+

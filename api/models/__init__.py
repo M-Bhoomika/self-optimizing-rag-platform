@@ -7,6 +7,7 @@ imported from a single namespace and registered on the shared metadata.
 from .base import Base
 from .chunk import Chunk
 from .document import Document
+from .rag_experiment import RagExperiment
 from .tenant import Tenant
 
-__all__ = ["Base", "Tenant", "Document", "Chunk"]
+__all__ = ["Base", "Tenant", "Document", "Chunk", "RagExperiment"]

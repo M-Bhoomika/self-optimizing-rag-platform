@@ -1,8 +1,9 @@
 """Retrieval service layer.
 
-Wires an :class:`EmbeddingProvider` to a :class:`VectorStore` to provide two
-high-level operations: indexing chunks and retrieving relevant chunks for a
-query. Local/in-memory only — no database access.
+Wires an embedding provider (``api.embeddings``) to a :class:`VectorStore` to
+provide two high-level operations: indexing chunks and retrieving relevant
+chunks for a query. Supports optional cross-encoder reranking after vector
+search.
 """
 
 from __future__ import annotations
@@ -32,9 +33,14 @@ class RetrievalService:
         self,
         embedding_provider: Optional[Any] = None,
         vector_store: Optional[Any] = None,
+        reranker: Optional[Any] = None,
     ) -> None:
         self.embedding_provider = embedding_provider or DummyEmbeddingProvider()
         self.vector_store = vector_store or InMemoryVectorStore()
+        self.reranker = reranker
+        from api.retrieval.langchain_retrievers import LangChainRetrievalOrchestrator
+
+        self.langchain_orchestrator = LangChainRetrievalOrchestrator(use_langchain=False)
 
     def index_chunks(self, chunks: Iterable[Any]) -> int:
         """Embed and upsert a batch of chunks into the vector store.
@@ -76,12 +82,38 @@ class RetrievalService:
 
         return count
 
-    def retrieve(self, request: RetrievalRequest) -> RetrievalResponse:
-        """Embed the query and return the most similar chunks for the tenant."""
-        query_embedding = self.embedding_provider.embed_query(request.query)
-        results: List[RetrievalResult] = self.vector_store.similarity_search(
-            tenant_id=request.tenant_id,
-            query_embedding=query_embedding,
-            top_k=request.top_k,
-        )
+    def retrieve(
+        self,
+        request: RetrievalRequest,
+        filters: Optional[Dict[str, Any]] = None,
+    ) -> RetrievalResponse:
+        """Embed the query, search the vector store, and optionally rerank."""
+
+        def _search(query_text: str, top_k: int) -> List[RetrievalResult]:
+            search_kwargs: Dict[str, Any] = {
+                "tenant_id": request.tenant_id,
+                "query_embedding": self.embedding_provider.embed_query(query_text),
+                "top_k": top_k,
+            }
+            if filters is not None:
+                search_kwargs["filters"] = filters
+            return self.vector_store.similarity_search(**search_kwargs)
+
+        if self.langchain_orchestrator is not None:
+            results = self.langchain_orchestrator.retrieve(
+                request.query,
+                retrieve_fn=_search,
+                top_k=request.top_k,
+            )
+        else:
+            results = _search(request.query, request.top_k)
+
+        if self.reranker is not None:
+            results = self.reranker.rerank(
+                query=request.query,
+                results=results,
+                top_k=request.top_k,
+            )
+
+        results = sorted(results, key=lambda item: item.score, reverse=True)
         return RetrievalResponse(results=results)

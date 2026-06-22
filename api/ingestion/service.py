@@ -1,8 +1,7 @@
 """Document ingestion workflow.
 
 Ties together parsing, validation, chunking, embedding, and vector storage into
-a single :meth:`IngestionService.ingest_document` call. Local/in-memory only —
-no database writes.
+a single :meth:`IngestionService.ingest_document` call.
 """
 
 from __future__ import annotations
@@ -56,6 +55,7 @@ class IngestionService:
         embeddings = self.embedding_provider.embed_documents(texts) if texts else []
 
         indexed_count = 0
+        chunk_records: List[Dict[str, Any]] = []
         for chunk, embedding in zip(chunks, embeddings):
             metadata: Dict[str, Any] = dict(chunk.metadata or {})
             metadata.update(
@@ -78,10 +78,20 @@ class IngestionService:
                 metadata=metadata,
             )
             indexed_count += 1
+            chunk_records.append(
+                {
+                    "chunk_index": chunk.chunk_index,
+                    "chunk_text": chunk.chunk_text,
+                    "embedding": embedding,
+                    "chunk_id": f"{document_id}:{chunk.chunk_index}",
+                }
+            )
 
         return {
             "document_id": document_id,
             "tenant_id": tenant_id,
             "chunk_count": chunk_count,
             "indexed_count": indexed_count,
+            "chunk_records": chunk_records,
+            "embedding_model": getattr(self.embedding_provider, "model_name", "unknown"),
         }

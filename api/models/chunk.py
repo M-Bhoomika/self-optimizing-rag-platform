@@ -14,6 +14,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
+from .vector_type import Vector1536
 
 if TYPE_CHECKING:
     from .document import Document
@@ -38,13 +39,7 @@ class Chunk(Base):
     )
     chunk_text: Mapped[str] = mapped_column(Text, nullable=False)
     chunk_index: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-
-    # TODO(embedding): The `embedding_vector` column is defined in schema.sql as
-    # VECTOR(1536) (pgvector). pgvector ORM integration is intentionally not
-    # implemented yet. When ready, map this with the pgvector SQLAlchemy type,
-    # e.g. `from pgvector.sqlalchemy import Vector` and
-    # `embedding_vector: Mapped[list[float] | None] = mapped_column(Vector(1536))`.
-    # Embedding dimension: 1536.
+    embedding_vector: Mapped[list[float] | None] = mapped_column(Vector1536, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()

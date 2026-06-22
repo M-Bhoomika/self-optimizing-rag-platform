@@ -1,3 +1,9 @@
+# Prometheus configuration for local Docker Compose.
+#
+# This file is mounted by docker-compose.yml. For the expanded monitoring
+# configuration with documented application metric names, see
+# monitoring/prometheus.yml at the project root.
+
 global:
   scrape_interval: 15s
 
@@ -6,7 +12,10 @@ scrape_configs:
     static_configs:
       - targets: ["localhost:9090"]
 
-  # Placeholder for the API service (uncomment once the API exposes /metrics):
-  # - job_name: api
+  # Uncomment when the API service exposes a Prometheus /metrics endpoint.
+  # Expected metrics: request_count, request_latency, retrieval_latency,
+  # generation_latency.
+  # - job_name: rag-api
+  #   metrics_path: /metrics
   #   static_configs:
   #     - targets: ["api:8000"]

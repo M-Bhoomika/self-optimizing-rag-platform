@@ -37,6 +37,7 @@ def test_txt_ingestion(service: IngestionService) -> None:
     assert summary["tenant_id"] == TENANT_ID
     assert summary["chunk_count"] >= 1
     assert summary["indexed_count"] == summary["chunk_count"]
+    assert len(summary.get("chunk_records", [])) == summary["chunk_count"]
 
 
 def test_markdown_ingestion(service: IngestionService) -> None:
@@ -50,6 +51,7 @@ def test_markdown_ingestion(service: IngestionService) -> None:
     )
     assert summary["chunk_count"] >= 1
     assert summary["indexed_count"] == summary["chunk_count"]
+    assert len(summary.get("chunk_records", [])) == summary["chunk_count"]
 
 
 def test_html_ingestion(service: IngestionService) -> None:
@@ -63,6 +65,7 @@ def test_html_ingestion(service: IngestionService) -> None:
     )
     assert summary["chunk_count"] >= 1
     assert summary["indexed_count"] == summary["chunk_count"]
+    assert len(summary.get("chunk_records", [])) == summary["chunk_count"]
 
 
 def test_unsupported_document_type_raises(service: IngestionService) -> None:
@@ -72,7 +75,7 @@ def test_unsupported_document_type_raises(service: IngestionService) -> None:
             document_id="doc-bad",
             title="Bad",
             content="some content",
-            document_type="pdf",
+            document_type="docx",
             source="upload",
         )
 

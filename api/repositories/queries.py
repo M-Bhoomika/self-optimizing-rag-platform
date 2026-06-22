@@ -41,6 +41,27 @@ _LIST_QUERIES = text(
     """
 )
 
+_COUNT_QUERIES_TODAY = text(
+    """
+    SELECT COUNT(*) AS count
+    FROM queries
+    WHERE tenant_id = :tenant_id
+      AND created_at >= date_trunc('day', NOW() AT TIME ZONE 'UTC')
+    """
+)
+
+_UPDATE_EVALUATION = text(
+    """
+    UPDATE queries
+    SET faithfulness_score = :faithfulness_score,
+        answer_relevance_score = :answer_relevance_score
+    WHERE id = :query_id
+    RETURNING id, tenant_id, query_text, answer_text, retrieved_chunk_ids,
+              faithfulness_score, answer_relevance_score, latency_ms,
+              model_version, cached, created_at
+    """
+)
+
 
 class QueryRepository:
     """Data-access methods for the ``queries`` table."""
@@ -94,3 +115,31 @@ class QueryRepository:
             .all()
         )
         return [dict(row) for row in rows]
+
+    def count_queries_today(self, tenant_id: str) -> int:
+        if not tenant_id:
+            raise ValueError("tenant_id must not be empty.")
+        row = self.session.execute(_COUNT_QUERIES_TODAY, {"tenant_id": tenant_id}).mappings().one()
+        return int(row["count"])
+
+    def update_evaluation_scores(
+        self,
+        query_id: str,
+        faithfulness_score: float,
+        answer_relevance_score: float,
+    ) -> Dict[str, Any]:
+        if not query_id:
+            raise ValueError("query_id must not be empty.")
+        row = (
+            self.session.execute(
+                _UPDATE_EVALUATION,
+                {
+                    "query_id": query_id,
+                    "faithfulness_score": faithfulness_score,
+                    "answer_relevance_score": answer_relevance_score,
+                },
+            )
+            .mappings()
+            .one()
+        )
+        return dict(row)

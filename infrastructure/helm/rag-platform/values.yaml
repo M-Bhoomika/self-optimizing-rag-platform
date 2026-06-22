@@ -1,0 +1,28 @@
+global:
+  namespace: rag-platform
+  imagePullPolicy: IfNotPresent
+
+api:
+  replicaCount: 2
+  image: rag-platform-api:latest
+  service:
+    port: 8000
+
+worker:
+  replicaCount: 1
+  image: rag-platform-worker:latest
+
+postgres:
+  enabled: true
+  storage: 20Gi
+
+redis:
+  enabled: true
+
+chromadb:
+  enabled: true
+
+monitoring:
+  prometheus: true
+  grafana: true
+  jaeger: true

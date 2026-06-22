@@ -1,12 +1,8 @@
-"""Deterministic placeholder evaluation metrics.
+"""Deterministic evaluation metrics used by the evaluation pipeline.
 
-These are lightweight, dependency-free heuristics that return scores in
-``[0, 1]``. They exist so the evaluation/experiment pipeline can be exercised
-end to end before a real metrics backend is wired in.
-
-TODO: Replace these heuristics with RAGAS-based metrics (faithfulness, answer
-relevance, context precision/recall). The function signatures should stay
-stable so callers are unaffected.
+These lightweight heuristics return scores in ``[0, 1]`` and power the
+executable evaluation service. When RAGAS LLM judges are configured, prefer
+those scores for production evaluation runs.
 """
 
 from __future__ import annotations

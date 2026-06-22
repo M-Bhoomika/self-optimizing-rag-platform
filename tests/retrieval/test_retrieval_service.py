@@ -98,3 +98,36 @@ def test_tenant_isolation(service: RetrievalService) -> None:
     response = service.retrieve(request)
 
     assert response.results == []
+
+
+class FakeReranker:
+    """Reverse result order and attach reranker scores."""
+
+    def rerank(self, query: str, results, top_k: int):
+        if not results:
+            return []
+        reranked = list(reversed(results))
+        output = []
+        for index, result in enumerate(reranked[:top_k]):
+            metadata = dict(result.metadata)
+            metadata["reranker_score"] = float(index + 1)
+            output.append(
+                result.model_copy(
+                    update={"score": float(index + 1), "metadata": metadata}
+                )
+            )
+        return output
+
+
+def test_retrieval_service_with_reranker() -> None:
+    service = RetrievalService(
+        embedding_provider=DummyEmbeddingProvider(),
+        vector_store=InMemoryVectorStore(),
+        reranker=FakeReranker(),
+    )
+    service.index_chunks(_make_chunks())
+    request = RetrievalRequest(tenant_id=TENANT_ID, query="vector search", top_k=3)
+    response = service.retrieve(request)
+
+    assert len(response.results) == 3
+    assert all("reranker_score" in result.metadata for result in response.results)

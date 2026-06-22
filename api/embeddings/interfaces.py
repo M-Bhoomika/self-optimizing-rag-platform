@@ -1,8 +1,4 @@
-"""Abstract interface for embedding providers.
-
-Defines the contract that all embedding providers (placeholder, OpenAI, ...)
-must implement.
-"""
+"""Abstract interface for embedding providers."""
 
 from __future__ import annotations
 
@@ -13,12 +9,22 @@ from typing import List
 class EmbeddingProvider(ABC):
     """Turns text into embedding vectors."""
 
+    @property
+    @abstractmethod
+    def dimension(self) -> int:
+        """Return embedding vector dimension."""
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def model_name(self) -> str:
+        """Return provider model identifier."""
+        raise NotImplementedError
+
     @abstractmethod
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
-        """Embed a batch of document texts into vectors."""
         raise NotImplementedError
 
     @abstractmethod
     def embed_query(self, text: str) -> List[float]:
-        """Embed a single query string into a vector."""
         raise NotImplementedError
